@@ -1,4 +1,4 @@
-import { useQuery, gql, useLazyQuery } from "@apollo/client"
+import { useQuery, gql, useLazyQuery, useMutation } from "@apollo/client"
 import { useState } from "react"
 
 const QUERY_ALL_USERS = gql`
@@ -32,30 +32,86 @@ const QUERY_GET_MOVIE_BY_NAME = gql`
     }
 `
 
+const CREATE_USER_MUTATION = gql`
+    mutation CreateUser($input: CreateUserInput!) {
+        createUser(input: $input) {
+            name
+            id
+        }
+    }
+`
+const DELETE_USER_MUTATION = gql`
+   mutation($deleteUserId: ID!) {
+    deleteUser(id: $deleteUserId) {
+        id
+    }
+}
+`
+
 export const DisplayData = () => {
     const [movieSearched, setMovieSearched] = useState("")
-    const {data, loading, error} = useQuery(QUERY_ALL_USERS)
+
+    // CreateUser states
+    const [name, setName] = useState("")
+    const [username, setUsername] = useState("")
+    const [age, setAge] = useState(0)
+    const [nationality, setNationality] = useState("")
+    const [idToDelete, setIdToDelete] = useState("")
+
+    const {data, loading, refetch} = useQuery(QUERY_ALL_USERS)
     const {data: movieData, loading: movieLoading, error: movieError} = useQuery(QUERY_ALL_MOVIES)
     const [fetchMovie, {data: movieSearchedData, error: MovieError}] = useLazyQuery(QUERY_GET_MOVIE_BY_NAME)
+    const [createUser] = useMutation(CREATE_USER_MUTATION)
+    const [deleteUser] = useMutation(DELETE_USER_MUTATION)
+
     if(loading) return <h1>Data is Loading...</h1>
-    if (data) {
-        console.log(data)
-    }
-    if (error) {
-        console.log(error)
-    }
-    
-    if (movieError) {
-        console.log(movieError)
-    }
+  
     return (
         <>
             <h1>List of users:</h1>
             <div>
+                <div>
+                    <input type="text" placeholder="name" onChange={(event) => {
+                            setName(event.target.value)
+                        }} />
+                    <input type="text" placeholder="username" onChange={(event) => {
+                            setUsername(event.target.value)
+                        }} />
+                    <input type="number" placeholder="age" onChange={(event) => {
+                            setAge(Number(event.target.value))
+                        }}/>
+                    <input type="text" placeholder="nationality" onChange={(event) => {
+                            setNationality(event.target.value.toUpperCase())
+                        }} />
+                    <button onClick={() => {
+                        createUser({variables: {
+                            input:{
+                                name,
+                                username,
+                                age,
+                                nationality
+                            }
+                        }})
+                        refetch()
+                    }}>Create User</button>
+                </div>
+                <h1>Delete user</h1>
+                <div>
+                    <input type="text" placeholder="id to delete" onChange={(e) => {
+                        setIdToDelete(e.target.value)
+                    }}/>
+                    <button onClick={() => {
+                        deleteUser({variables: {deleteUserId: idToDelete}})
+                        refetch()
+                    }}>Delete User</button>
+                </div>
                 {
                     data && data.users.map((user) => {
                         return(
                             <div key={user.id}>
+                                <h1>
+                                    Id: {user.id}
+                                </h1>
                                 <h1>
                                     Name: {user.name}
                                 </h1>
