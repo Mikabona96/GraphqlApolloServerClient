@@ -68,18 +68,27 @@ export const DisplayData = () => {
   
     return (
         <>
-            <h1>List of users:</h1>
             <div>
+            <h1>Create User</h1>
+            <p>
+                Please set Nationality one of: 
+                CANADA/
+                BRAZIL/
+                INDIA/
+                GERMANY/
+                CHILE/
+                UKRAINE
+            </p>
                 <div>
                     <input type="text" placeholder="name" onChange={(event) => {
                             setName(event.target.value)
                         }} />
                     <input type="text" placeholder="username" onChange={(event) => {
-                            setUsername(event.target.value)
-                        }} />
+                        setUsername(event.target.value)
+                    }} />
                     <input type="number" placeholder="age" onChange={(event) => {
-                            setAge(Number(event.target.value))
-                        }}/>
+                        setAge(Number(event.target.value))
+                    }}/>
                     <input type="text" placeholder="nationality" onChange={(event) => {
                             setNationality(event.target.value.toUpperCase())
                         }} />
@@ -105,6 +114,7 @@ export const DisplayData = () => {
                         refetch()
                     }}>Delete User</button>
                 </div>
+                <h1>List of users:</h1>
                 {
                     data && data.users.map((user) => {
                         return(
